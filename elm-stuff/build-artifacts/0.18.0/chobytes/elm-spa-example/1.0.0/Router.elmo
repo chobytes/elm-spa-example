@@ -1,0 +1,30 @@
+var _chobytes$elm_spa_example$Router$int = _evancz$url_parser$UrlParser$int;
+var _chobytes$elm_spa_example$Router$string = _evancz$url_parser$UrlParser$string;
+var _chobytes$elm_spa_example$Router_ops = _chobytes$elm_spa_example$Router_ops || {};
+_chobytes$elm_spa_example$Router_ops['?>'] = F2(
+	function (x, y) {
+		return A2(_evancz$url_parser$UrlParser_ops['<?>'], x, y);
+	});
+var _chobytes$elm_spa_example$Router_ops = _chobytes$elm_spa_example$Router_ops || {};
+_chobytes$elm_spa_example$Router_ops[':>'] = F2(
+	function (x, y) {
+		return A2(_evancz$url_parser$UrlParser_ops['</>'], x, y);
+	});
+var _chobytes$elm_spa_example$Router_ops = _chobytes$elm_spa_example$Router_ops || {};
+_chobytes$elm_spa_example$Router_ops['<$>'] = _evancz$url_parser$UrlParser$map;
+var _chobytes$elm_spa_example$Router$pure = _evancz$url_parser$UrlParser$s;
+var _chobytes$elm_spa_example$Router$Users = {ctor: 'Users'};
+var _chobytes$elm_spa_example$Router$router = _evancz$url_parser$UrlParser$oneOf(
+	{
+		ctor: '::',
+		_0: A2(_chobytes$elm_spa_example$Router_ops['<$>'], _chobytes$elm_spa_example$Router$Users, _evancz$url_parser$UrlParser$top),
+		_1: {ctor: '[]'}
+	});
+var _chobytes$elm_spa_example$Router$match = function (location) {
+	var _p0 = _elm_lang$core$String$isEmpty(location.hash);
+	if (_p0 === true) {
+		return _elm_lang$core$Maybe$Just(_chobytes$elm_spa_example$Router$Users);
+	} else {
+		return A2(_evancz$url_parser$UrlParser$parseHash, _chobytes$elm_spa_example$Router$router, location);
+	}
+};

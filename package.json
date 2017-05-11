@@ -1,0 +1,23 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "example spa in elm",
+  "main": "main.js",
+  "scripts": {
+      "start": "electron .",
+      "build": "elm make src/Main.elm --output=dist/elm-bundle.js",
+      "go": "npm run build && npm run start"
+  },
+  "repository": "https://github.com/chobytes/elm-spa-example.git",
+  "keywords": [
+      "elm",
+      "spa",
+      "tutorial",
+      "demo"
+  ],
+  "author": "Felicity Lovelace",
+  "license": "",
+  "devDependencies": {
+    "electron": "~1.6.2"
+  }
+}

@@ -1,0 +1,6 @@
+var _chobytes$elm_spa_example$Ports$searchUsers = _elm_lang$core$Native_Platform.outgoingPort(
+	'searchUsers',
+	function (v) {
+		return v;
+	});
+var _chobytes$elm_spa_example$Ports$receiveUser = _elm_lang$core$Native_Platform.incomingPort('receiveUser', _elm_lang$core$Json_Decode$value);
