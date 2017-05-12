@@ -6,15 +6,17 @@ import Navigation exposing (..)
 import UrlParser exposing (..)
 
 
-type Route = Users
+type Route = Home
+           | Users
 
-router = oneOf [ Users <$> top ]
+router = oneOf [ Home <$> top
+               , Users <$> pure "users"]
 
 
 match : Location -> Maybe Route
 match location =
     case String.isEmpty location.hash of
-        True -> Just Users
+        True -> Just Home
         False -> parseHash router location
 
 

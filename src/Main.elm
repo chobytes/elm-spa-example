@@ -4,9 +4,12 @@ import Navigation exposing (..)
 import Page.Users as Users
 import Router
 import Html exposing (..)
-import Data.User
+import Data.Github.Users.SingleUser as User
 import Ports
 import Json.Decode as Decode
+
+import Page.Home as Home
+import View.Nav as Nav
 
 
 main =
@@ -22,6 +25,7 @@ main =
 
 type Page = NotFound
           | UsersPage Users.Model
+          | HomePage
           | Blank
 
 type alias Model =
@@ -53,6 +57,9 @@ update msg model =
                 Just Router.Users ->
                     ({ model | page = UsersPage Users.init }, Cmd.none)
 
+                Just Router.Home ->
+                    ({ model | page = HomePage }, Cmd.none)
+
                 Nothing ->
                     ({ model | page = NotFound }, Cmd.none)
 
@@ -72,11 +79,14 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    case model.page of
-        Blank -> text ""
-        NotFound -> text "404'"
-        UsersPage subModel -> Users.view subModel |> Html.map UsersMsg
-
+    div []
+        [ Nav.view
+        , case model.page of
+              Blank -> text ""
+              NotFound -> text "404"
+              HomePage -> Home.view
+              UsersPage subModel -> Users.view subModel |> Html.map UsersMsg
+        ]
 
 
 -- Subscriptions
@@ -84,4 +94,4 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.map (UsersMsg << Users.SetUser)
-        <| Ports.receiveUser (Decode.decodeValue Data.User.decoder)
+        <| Ports.receiveUser (Decode.decodeValue User.decoder)
