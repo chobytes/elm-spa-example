@@ -1,4 +1,4 @@
-# Elm Desktop App Demo
+# Elm Electron SPA App Demo
 
 
 A simple desktop electron application to serve as an example of some concepts.
