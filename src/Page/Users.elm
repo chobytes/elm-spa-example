@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Ports exposing (searchUsers)
 
-import Data.User as User
+import Data.Github.Users.SingleUser as User
 
 
 type alias Model =
@@ -49,7 +49,7 @@ view model =
     in div []
         [ h1 [] [ text "Github!" ]
         , fieldset []
-            [ legend [] [ text "Search for Github User by Username" ]
+            [ legend [] [ text "Find by username" ]
             , input [ value model.searchForm
                     , type_ "text"
                     , onInput SetSearchForm ] []
