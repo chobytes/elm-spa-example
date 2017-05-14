@@ -25,23 +25,25 @@ main =
 -- Model
 
 type Page = NotFound
-          | UsersPage Users.Model
-          | SearchPage Search.Model
+          | UsersPage
+          | SearchPage
           | HomePage
           | Blank
 
 type alias Model =
-    { page : Page }
+    { currentPage : Page
+    , searchModel : Search.Model
+    , usersModel : Users.Model
+    }
 
 
 init : Location -> (Model, Cmd Msg)
 init location =
-    -- Immediately invoke router
-    update (SetRoute <| Router.match location) { page = Blank }
-
-
-
-
+    update (SetRoute <| Router.match location) -- Immediately invoke router
+        <| { currentPage = Blank
+           , searchModel = Search.init
+           , usersModel = Users.init
+           }
 
 
 -- Update
@@ -54,36 +56,30 @@ type Msg = SetRoute (Maybe Router.Route)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    case (msg, model.page) of
-        (SetRoute route, _) ->
+    case msg of
+        SetRoute route ->
             case route of
                 Just Router.Search ->
-                    ({ model | page = SearchPage Search.init }, Cmd.none)
+                    ({ model | currentPage = SearchPage }, Cmd.none)
 
                 Just Router.Users ->
-                    ({ model | page = UsersPage Users.init }, Cmd.none)
+                    ({ model | currentPage = UsersPage }, Cmd.none)
 
                 Just Router.Home ->
-                    ({ model | page = HomePage }, Cmd.none)
+                    ({ model | currentPage = HomePage }, Cmd.none)
 
                 Nothing ->
-                    ({ model | page = NotFound }, Cmd.none)
+                    ({ model | currentPage = NotFound }, Cmd.none)
 
-        (UsersMsg subMsg, UsersPage subModel) ->
+        UsersMsg subMsg ->
             let (nextModel, subCmd) =
-                    Users.update subMsg subModel
-            in ({ model | page = UsersPage nextModel }, Cmd.map UsersMsg subCmd)
+                    Users.update subMsg model.usersModel
+            in ({ model | usersModel = nextModel }, Cmd.map UsersMsg subCmd)
 
-        (SearchMsg subMsg, SearchPage subModel) ->
+        SearchMsg subMsg ->
             let (nextModel, subCmd) =
-                    Search.update subMsg subModel
-            in ({ model | page = SearchPage nextModel }, Cmd.map SearchMsg subCmd)
-
-        (_, NotFound) ->
-            (model, Cmd.none)
-
-        (_,_) ->
-            (model, Cmd.none)
+                    Search.update subMsg model.searchModel
+            in ({ model | searchModel = nextModel }, Cmd.map SearchMsg subCmd)
 
 
 
@@ -92,12 +88,18 @@ view : Model -> Html Msg
 view model =
     div []
         [ Nav.view
-        , case model.page of
+        , case model.currentPage of
               Blank -> text ""
+
               NotFound -> text "404"
+
               HomePage -> Home.view
-              UsersPage subModel -> Users.view subModel |> Html.map UsersMsg
-              SearchPage subModel -> Search.view subModel |> Html.map SearchMsg
+
+              UsersPage ->
+                  Users.view model.usersModel |> Html.map UsersMsg
+
+              SearchPage ->
+                  Search.view model.searchModel |> Html.map SearchMsg
         ]
 
 
@@ -105,5 +107,5 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map (UsersMsg << Users.SetUser)
-        <| Ports.receiveUser (Decode.decodeValue User.decoder)
+    Sub.batch [ Users.subscriptions model.usersModel |> Sub.map UsersMsg
+              , Search.subscriptions model.searchModel |> Sub.map SearchMsg ]

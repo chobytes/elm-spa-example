@@ -3,40 +3,34 @@ module Page.Search exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Ports
+import Json.Decode as Decode
 
-import Data.Github.Search.Repository as Repo
+import Data.Github.Search as Search
 
 
 -- Model
 
 type alias Model =
     { searchForm : String
-    , searchType : Maybe SearchType
-    , searchResult : Maybe (Result String) }
+    , searchResult : Maybe (Result String Search.SearchResult)
+    }
 
-
-type SearchType = Repository
-                -- | Code
-                -- | Commits
-                -- | Issues
-                -- | Users
-
-type SearchResult = RepositoryData Repo.Repository
 
 
 init : Model
 init =
     { searchForm = ""
-    , searchType = Nothing
     , searchResult = Nothing
     }
 
 
 
-
---
-
+-- Update
 type Msg = SetSearchForm String
+         | SetSearchResult (Result String Search.SearchResult)
+         | Search
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -44,22 +38,37 @@ update msg model =
         SetSearchForm data ->
             ({ model | searchForm = data }, Cmd.none)
 
+        SetSearchResult res ->
+            ({ model | searchResult = Just res }, Cmd.none)
 
-
+        Search -> (model, Ports.search model.searchForm)
 
 
 
 -- View
-
 view : Model -> Html Msg
 view model =
-    div []
+    let res = case model.searchResult of
+                  Just (Ok repo) -> text <| toString repo
+                  Just (Err e) -> text <| toString e
+                  Nothing -> text ""
+    in div []
         [ fieldset []
               [ legend [] [ text "Search Github!" ]
               , input [ value model.searchForm
                       , type_ "text"
                       , onInput SetSearchForm
                       ] []
-              , button [] [ text "Search" ]
+              , button [ onClick Search ] [ text "Search" ]
               ]
+        , p [] [res]
         ]
+
+
+
+
+-- Subscriptions --
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Ports.getSearchResult (Decode.decodeValue Search.decoder)
+        |> Sub.map SetSearchResult

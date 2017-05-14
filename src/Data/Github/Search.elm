@@ -1,20 +1,37 @@
 module Data.Github.Search exposing (..)
 
 import Json.Decode exposing (..)
+--import Json.Decode.Extra exposing (..)
 import Json.Decode.Pipeline exposing (..)
+import Result as Result
 import Data.Github.Search.Repository as Repo
 
-
-type alias Search a =
+type alias SearchResult =
     { count_total : Int
     , incomplete_results : Bool
-    , items : List a
+    , items : List Repository
     }
 
-
-decodeRepo : Decoder (Search Repo.Repository)
-decodeRepo =
-    decode Search
+decoder : Decoder SearchResult
+decoder =
+    decode SearchResult
         |> required "total_count" int
         |> required "incomplete_results" bool
-        |> required "item" (list Repo.decode)
+        |> required "items" (list repoDecoder)
+
+
+
+
+
+type alias Repository =
+    { id : Int
+    , name : String
+    , full_name : String
+    }
+
+repoDecoder : Decoder Repository
+repoDecoder =
+    decode Repository
+        |> required "id" int
+        |> required "name" string
+        |> required "full_name" string

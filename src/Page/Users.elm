@@ -3,7 +3,8 @@ module Page.Users exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Ports exposing (searchUsers)
+import Ports exposing (getUser)
+import Json.Decode as Decode
 
 import Data.Github.Users.SingleUser as User
 
@@ -31,7 +32,7 @@ update msg model =
 
         SearchUser ->
             let nextModel = { model | searchForm = "" }
-            in (nextModel, searchUsers model.searchForm)
+            in (nextModel, getUser model.searchForm)
 
         SetUser (Ok user) ->
             ({ model | user = Ok user }, Cmd.none)
@@ -57,3 +58,10 @@ view model =
             ]
         , userRes
         ]
+
+
+-- Subscriptions
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.map SetUser <| Ports.receiveUser (Decode.decodeValue User.decoder)
