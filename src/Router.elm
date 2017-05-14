@@ -8,9 +8,11 @@ import UrlParser exposing (..)
 
 type Route = Home
            | Users
+           | Search
 
 router = oneOf [ Home <$> top
-               , Users <$> pure "users"]
+               , Users <$> pure "users"
+               , Search <$> pure "search" ]
 
 
 match : Location -> Maybe Route
